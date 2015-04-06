@@ -32,11 +32,11 @@ public class ConsumerMessageListener {
         System.out.println("Received HelloMessage: {}" + helloMessage.toString());
         PrintWriter out = null; 
         try {
-        	out = new PrintWriter(new BufferedWriter(new FileWriter("g:/a.txt", true)));
+        	out = new PrintWriter(new BufferedWriter(new FileWriter("D:/a.txt", true)));
             count ++;
             out.println(String.valueOf(count) + new Date().toString() + "\n");
             out.flush();
-            Thread.sleep(50);
+            Thread.sleep(20);
           }
         catch(Exception e ) {
         	out.close();
@@ -49,11 +49,11 @@ public class ConsumerMessageListener {
         FileWriter fw = null;
         PrintWriter out = null; 
         try {
-        	out = new PrintWriter(new BufferedWriter(new FileWriter("g:/a.txt", true)));
+        	out = new PrintWriter(new BufferedWriter(new FileWriter("D:/a.txt", true)));
             count ++;
             out.println(String.valueOf(count) + new Date().toString() + "\n");
             out.flush();
-            Thread.sleep(50);
+            //Thread.sleep(20);
           }
         catch(Exception e ) {
         	out.close();

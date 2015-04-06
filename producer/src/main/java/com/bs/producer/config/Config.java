@@ -1,9 +1,8 @@
 package com.bs.producer.config;
 
 
-import com.bs.messaging.infrastrucutre.JsonMessageSerializer;
-import com.bs.messaging.infrastrucutre.MessageGateway;
-import com.bs.producer.infrastructure.SerializedMessageGateway;
+import javax.jms.ConnectionFactory;
+
 import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.activemq.spring.ActiveMQConnectionFactory;
@@ -19,7 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import javax.jms.ConnectionFactory;
+import com.bs.messaging.infrastrucutre.JsonMessageSerializer;
 
 @Configuration
 @ComponentScan
@@ -75,7 +74,8 @@ public class Config {
         jmsConfiguration.setConnectionFactory(connectionFactory);
         return jmsConfiguration;
     }
-
+    
+    
     @Bean
     public ActiveMQComponent coreActivemq(JmsConfiguration coreJmsConfig) {
         ActiveMQComponent component = new ActiveMQComponent();

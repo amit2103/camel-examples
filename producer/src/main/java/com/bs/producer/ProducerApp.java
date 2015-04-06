@@ -44,14 +44,14 @@ public class ProducerApp {
     }
 
     private void schedule() {
-        ScheduledExecutorService pool = Executors.newScheduledThreadPool(4);
+        ScheduledExecutorService pool = Executors.newScheduledThreadPool(20);
         pool.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 gateway.sendMessage("coreActivemq:hello.in", new SkinEvent("Hello World"));
                 gateway.sendMessage("coreActivemq:hello.in", new BlackVenomEvent(35D, "Product1"));
             }
-        }, 1000, 3, TimeUnit.MILLISECONDS);
+        }, 10, 1, TimeUnit.MILLISECONDS);
 
     }
 }

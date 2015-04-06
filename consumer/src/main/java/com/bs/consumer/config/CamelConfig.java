@@ -2,6 +2,7 @@ package com.bs.consumer.config;
 
 import com.bs.consumer.infrastructure.adapters.primary.integration.camel.MakalRoute;
 import com.bs.messaging.infrastrucutre.JsonMessageSerializer;
+
 import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.activemq.spring.ActiveMQConnectionFactory;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.jms.connection.JmsTransactionManager;
 
 import javax.jms.ConnectionFactory;
 
@@ -70,9 +72,12 @@ public class CamelConfig {
     public JmsConfiguration coreJmsConfig(ActiveMQConnectionFactory coreConnectionFactory) {
         JmsConfiguration jmsConfiguration = new JmsConfiguration();
         ConnectionFactory connectionFactory = new PooledConnectionFactory(coreConnectionFactory);
-        jmsConfiguration.setConcurrentConsumers(5);
-        jmsConfiguration.setCacheLevelName("CACHE_CONSUMER");
+        jmsConfiguration.setConcurrentConsumers(1);
+        jmsConfiguration.setCacheLevelName("CACHE_NONE");
         jmsConfiguration.setConnectionFactory(connectionFactory);
+        jmsConfiguration.setAsyncConsumer(false);
+        jmsConfiguration.setTransacted(true);
+        jmsConfiguration.setTransactionManager(new JmsTransactionManager(coreConnectionFactory()));
        // jmsConfiguration.setCacheLevel(cacheLevel);
         return jmsConfiguration;
     }
@@ -92,5 +97,10 @@ public class CamelConfig {
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
+    }
+    
+    @Bean(name="listnerFactory")
+    public ListenerContainerFactory listnerContainer() {
+        return new ListenerContainerFactory();
     }
 }
