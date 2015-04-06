@@ -27,7 +27,7 @@ public class MakalRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        from(jmsBroker + ":" + IN_QUEUE +"?concurrentConsumers=10&messageListenerContainerFactoryRef=listnerFactory")
+        from(jmsBroker + ":" + IN_QUEUE +"?concurrentConsumers=20&messageListenerContainerFactoryRef=listnerFactory")
                 .to("log:jmsRootLog?showAll=true")
                 .choice()
                     .when(header(MESSAGE_TYPE).isEqualTo(SkinEvent.class.getName()))
