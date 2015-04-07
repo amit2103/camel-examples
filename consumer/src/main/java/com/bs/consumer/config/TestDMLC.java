@@ -47,9 +47,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.backoff.BackOff;
-import org.springframework.util.backoff.BackOffExecution;
-import org.springframework.util.backoff.FixedBackOff;
+
 
 /**
  * Base class for listener container implementations which are based on polling.
@@ -156,8 +154,6 @@ public class TestDMLC extends DefaultMessageListenerContainer {
 
 	private Executor taskExecutor;
 
-	private BackOff backOff = createDefaultBackOff(DEFAULT_RECOVERY_INTERVAL);
-
 	private int cacheLevel = CACHE_AUTO;
 
 	private int concurrentConsumers = 1;
@@ -205,30 +201,7 @@ public class TestDMLC extends DefaultMessageListenerContainer {
 		this.taskExecutor = taskExecutor;
 	}
 
-	/**
-	 * Specify the {@link BackOff} instance to use to compute the interval
-	 * between recovery attempts. If the {@link BackOffExecution} implementation
-	 * returns {@link BackOffExecution#STOP}, this listener container will not further
-	 * attempt to recover.
-	 * <p>The {@link #setRecoveryInterval(long) recovery interval} is ignored
-	 * when this property is set.
-	 */
-	public void setBackOff(BackOff backOff) {
-		this.backOff = backOff;
-	}
-
-	/**
-	 * Specify the interval between recovery attempts, in <b>milliseconds</b>.
-	 * The default is 5000 ms, that is, 5 seconds. This is a convenience method
-	 * to create a {@link FixedBackOff} with the specified interval.
-	 * <p>For more recovery options, consider specifying a {@link BackOff}
-	 * instance instead.
-	 * @see #setBackOff(BackOff)
-	 * @see #handleListenerSetupFailure
-	 */
-	public void setRecoveryInterval(long recoveryInterval) {
-		this.backOff = createDefaultBackOff(recoveryInterval);
-	}
+	
 
 	/**
 	 * Specify the level of caching that this listener container is allowed to apply,
@@ -816,58 +789,6 @@ public class TestDMLC extends DefaultMessageListenerContainer {
 		}
 	}
 
-	/**
-	 * Refresh the underlying Connection, not returning before an attempt has been
-	 * successful. Called in case of a shared Connection as well as without shared
-	 * Connection, so either needs to operate on the shared Connection or on a
-	 * temporary Connection that just gets established for validation purposes.
-	 * <p>The default implementation retries until it successfully established a
-	 * Connection, for as long as this message listener container is running.
-	 * Applies the specified recovery interval between retries.
-	 * @see #setRecoveryInterval
-	 * @see #start()
-	 * @see #stop()
-	 */
-	protected void refreshConnectionUntilSuccessful() {
-		BackOffExecution execution = this.backOff.start();
-		while (isRunning()) {
-			try {
-				if (sharedConnectionEnabled()) {
-					refreshSharedConnection();
-				}
-				else {
-					Connection con = createConnection();
-					JmsUtils.closeConnection(con);
-				}
-				logger.info("Successfully refreshed JMS Connection");
-				break;
-			}
-			catch (Exception ex) {
-				if (ex instanceof JMSException) {
-					invokeExceptionListener((JMSException) ex);
-				}
-				StringBuilder msg = new StringBuilder();
-				msg.append("Could not refresh JMS Connection for destination '");
-				msg.append(getDestinationDescription()).append("' - retrying using ");
-				msg.append(execution).append(". Cause: ");
-				msg.append(ex instanceof JMSException ? JmsUtils.buildExceptionMessage((JMSException) ex) : ex.getMessage());
-				if (logger.isDebugEnabled()) {
-					logger.error(msg, ex);
-				}
-				else {
-					logger.error(msg);
-				}
-			}
-			if (!applyBackOffTime(execution)) {
-				StringBuilder msg = new StringBuilder();
-				msg.append("Stopping container for destination '")
-						.append(getDestinationDescription())
-						.append("' - back off policy does not allow ").append("for further attempts.");
-				logger.error(msg.toString());
-				stop();
-			}
-		}
-	}
 
 	/**
 	 * Refresh the JMS destination that this listener container operates on.
@@ -894,26 +815,7 @@ public class TestDMLC extends DefaultMessageListenerContainer {
 	 * attempt to recover should be made, {@code false} if no further attempt
 	 * should be made.
 	 */
-	protected boolean applyBackOffTime(BackOffExecution execution) {
-		long interval = execution.nextBackOff();
-		if (interval == BackOffExecution.STOP) {
-			return false;
-		}
-		else {
-			try {
-				Thread.sleep(interval);
-			}
-			catch (InterruptedException interEx) {
-				// Re-interrupt current thread, to allow other threads to react.
-				Thread.currentThread().interrupt();
-			}
-		}
-		return true;
-	}
 
-	private FixedBackOff createDefaultBackOff(long interval) {
-		return new FixedBackOff(interval, Long.MAX_VALUE);
-	}
 
 	
 
@@ -963,7 +865,7 @@ public class TestDMLC extends DefaultMessageListenerContainer {
 				if (!this.lastMessageSucceeded) {
 					// We failed more than once in a row or on startup - sleep before
 					// first recovery attempt.
-					sleepBeforeRecoveryAttempt();
+					//sleepBeforeRecoveryAttempt();
 				}
 				this.lastMessageSucceeded = false;
 				boolean alreadyRecovered = false;
@@ -1122,10 +1024,6 @@ public class TestDMLC extends DefaultMessageListenerContainer {
 		 * scenario when the broker is actually up but something else if failing (i.e. listener
 		 * specific).
 		 */
-		private void sleepBeforeRecoveryAttempt() {
-			BackOffExecution execution = TestDMLC.this.backOff.start();
-			applyBackOffTime(execution);
-		}
 
 		@Override
 		public boolean isLongLived() {

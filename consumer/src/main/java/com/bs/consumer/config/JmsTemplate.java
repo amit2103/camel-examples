@@ -1,6 +1,7 @@
 package com.bs.consumer.config;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -77,6 +78,8 @@ public class JmsTemplate  extends CamelJmsTemplate{
 	private int priority = Message.DEFAULT_PRIORITY;
 
 	private long timeToLive = Message.DEFAULT_TIME_TO_LIVE;
+	
+	private ConcurrentHashMap<Integer, MessageProducer> concurrentHashMap = new ConcurrentHashMap<Integer, MessageProducer>();
 
 
 	/**
