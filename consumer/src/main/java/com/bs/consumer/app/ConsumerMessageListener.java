@@ -36,7 +36,7 @@ public class ConsumerMessageListener {
             count ++;
             out.println(String.valueOf(count) + new Date().toString() + "\n");
             out.flush();
-            Thread.sleep(50);
+            //Thread.sleep(50);
           }
         catch(Exception e ) {
         	out.close();
@@ -53,7 +53,7 @@ public class ConsumerMessageListener {
             count ++;
             out.println(String.valueOf(count) + new Date().toString() + "\n");
             out.flush();
-            Thread.sleep(50);
+           // Thread.sleep(50);
           }
         catch(Exception e ) {
         	out.close();
