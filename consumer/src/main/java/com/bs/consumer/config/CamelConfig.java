@@ -8,6 +8,7 @@ import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.activemq.spring.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 import org.apache.camel.spring.Main;
 import org.apache.camel.spring.SpringCamelContext;
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.jms.connection.JmsTransactionManager;
+import org.springframework.jms.core.JmsOperations;
 
 import javax.jms.ConnectionFactory;
 
@@ -40,7 +42,7 @@ public class CamelConfig {
     private String brokerName;
 
     @Bean
-    public CamelContext createCamelContext(ActiveMQComponent activeMQComponent) throws Exception {
+    public CamelContext createCamelContext(JmsComponent activeMQComponent) throws Exception {
         CamelContext camelContext = new SpringCamelContext();
         camelContext.addRoutes(routeBuilder);
         camelContext.addComponent(brokerName, activeMQComponent);
@@ -72,7 +74,7 @@ public class CamelConfig {
     public JmsConfiguration coreJmsConfig(ActiveMQConnectionFactory coreConnectionFactory) {
         JmsConfiguration jmsConfiguration = new JmsConfiguration();
         ConnectionFactory connectionFactory = new PooledConnectionFactory(coreConnectionFactory);
-        jmsConfiguration.setConcurrentConsumers(1);
+        jmsConfiguration.setConcurrentConsumers(5);
         jmsConfiguration.setCacheLevelName("CACHE_NONE");
         jmsConfiguration.setConnectionFactory(connectionFactory);
         jmsConfiguration.setAsyncConsumer(false);
@@ -102,5 +104,10 @@ public class CamelConfig {
     @Bean(name="listnerFactory")
     public ListenerContainerFactory listnerContainer() {
         return new ListenerContainerFactory();
+    }
+    
+    @Bean(name="customTemplate")
+    public JmsOperations customTemplate() {
+        return new JmsTemplate(coreJmsConfig(coreConnectionFactory()),coreConnectionFactory());
     }
 }

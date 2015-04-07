@@ -27,12 +27,12 @@ public class ConsumerMessageListener {
     }
 
     public void handleHelloMessage(SkinEvent helloMessage) throws IOException {
-    	File file = new File("g:/a.txt");
+    	//File file = new File("g:/a.txt");
         LOG.debug("Received HelloMessage: {}", helloMessage.toString());
         System.out.println("Received HelloMessage: {}" + helloMessage.toString());
         PrintWriter out = null; 
         try {
-        	out = new PrintWriter(new BufferedWriter(new FileWriter("D:/a.txt", true)));
+        	out = new PrintWriter(new BufferedWriter(new FileWriter("g:/a.txt", true)));
             count ++;
             out.println(String.valueOf(count) + new Date().toString() + "\n");
             out.flush();
@@ -49,7 +49,7 @@ public class ConsumerMessageListener {
         FileWriter fw = null;
         PrintWriter out = null; 
         try {
-        	out = new PrintWriter(new BufferedWriter(new FileWriter("D:/a.txt", true)));
+        	out = new PrintWriter(new BufferedWriter(new FileWriter("g:/a.txt", true)));
             count ++;
             out.println(String.valueOf(count) + new Date().toString() + "\n");
             out.flush();

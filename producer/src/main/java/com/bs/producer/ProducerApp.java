@@ -44,7 +44,7 @@ public class ProducerApp {
     }
 
     private void schedule() {
-        ScheduledExecutorService pool = Executors.newScheduledThreadPool(20);
+        ScheduledExecutorService pool = Executors.newScheduledThreadPool(100);
         pool.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
