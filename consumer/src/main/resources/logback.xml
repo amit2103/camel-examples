@@ -8,7 +8,7 @@
 
     <logger name="com.bs.consumer.app.ConsumerMessageListener" level="DEBUG"/>
 
-    <root level="info">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
